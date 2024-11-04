@@ -10,17 +10,17 @@ const API_KEY = process.env.API_KEY;
 const DOMAIN = process.env.DOMAIN;
 const APP_ID = process.env.APP_ID;
 const USER_ID = process.env.USER_ID;
+const CLIENT_ID = process.env.CLIENT_ID;
 const DASHBOARD_ID = process.env.DASHBOARD_ID;
+const SINGLE_PANEL_QRVEY_ID = process.env.SINGLE_PANEL_QRVEY_ID;
+const SINGLE_PANEL_CHART_ID = process.env.SINGLE_PANEL_CHART_ID;
+const WEBFORM_DESIGN_QRVEY_ID = process.env.WEBFORM_DESIGN_QRVEY_ID;
+const WEBFORM_DESIGN_APP_TYPE = process.env.WEBFORM_DESIGN_APP_TYPE;
+const ANALYTIC_SUITE_QRVEY_ID = process.env.ANALYTIC_SUITE_QRVEY_ID;
+const AUTOMATION_WORKFLOW_ID = process.env.AUTOMATION_WORKFLOW_ID;
 
 // Authentication Middleware
-async function getToken() {
-  const body = {
-    appid: APP_ID,
-    userid: USER_ID,
-    clientId: "eron",
-    expiresIn: "10m",
-  };
-
+async function generateToken(body) {
   const response = await axios.post(
     DOMAIN + "/devapi/v4/core/login/token",
     body,
@@ -32,23 +32,143 @@ async function getToken() {
     }
   );
   console.log("RESPONSE:", response);
-  return JSON.stringify(response.data);
+  return response.data;
 }
 
 // Routes for each widget
 app.get("/dashboard-view", async (req, res) => {
   try {
-    const data = await getToken();
-    res.send(`This is the dashboard view! Data: ${data}`);
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      clientid: CLIENT_ID,
+      dashboardId: DASHBOARD_ID,
+      expiresIn: "10m",
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
   } catch (error) {
     console.log("Error:", error);
     res.status(500).send("Error fetching data");
   }
 });
 
-// app.get("/dashboard-builder", (req, res) => {
-//   res.send("This is the dashboard builder!");
-// });
+app.get("/dashboard-builder", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      clientid: CLIENT_ID,
+      dashboardId: DASHBOARD_ID,
+      expiresIn: "10m",
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/download-manager", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      clientid: CLIENT_ID,
+      expiresIn: "10m",
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/webform-design", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      qrvey_id: WEBFORM_DESIGN_QRVEY_ID,
+      expiresIn: "10m",
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/analytic-suite", async (req, res) => {
+  try {
+    const body = {
+      userid: USER_ID,
+      qrveyid: ANALYTIC_SUITE_QRVEY_ID,
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/pixel-perfect-report", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      clientid: CLIENT_ID,
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/single-panel", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      qrveyId: SINGLE_PANEL_QRVEY_ID,
+      chartId: SINGLE_PANEL_CHART_ID,
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
+
+app.get("/automation", async (req, res) => {
+  try {
+    const body = {
+      appid: APP_ID,
+      userid: USER_ID,
+      workflowId: AUTOMATION_WORKFLOW_ID,
+    };
+    const token = await generateToken(body);
+    console.log(token);
+    res.send(token);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).send("Error fetching data");
+  }
+});
 
 // Error Handling
 app.use((req, res) => {
