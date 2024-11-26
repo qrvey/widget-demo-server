@@ -170,6 +170,15 @@ app.get("/automation", async (req, res) => {
   }
 });
 
+// Health Check Endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Error Handling
 app.use((req, res) => {
   res.status(404).send("Sorry, that route doesn't exist.");
