@@ -19,6 +19,14 @@ const WEBFORM_DESIGN_APP_TYPE = process.env.WEBFORM_DESIGN_APP_TYPE;
 const ANALYTIC_SUITE_QRVEY_ID = process.env.ANALYTIC_SUITE_QRVEY_ID;
 const AUTOMATION_WORKFLOW_ID = process.env.AUTOMATION_WORKFLOW_ID;
 
+// Allow specific origin
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow only cdpn.io
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 // Authentication Middleware
 async function generateToken(body) {
   const response = await axios.post(
