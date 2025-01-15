@@ -12,12 +12,8 @@ const APP_ID = process.env.APP_ID;
 const USER_ID = process.env.USER_ID;
 const CLIENT_ID = process.env.CLIENT_ID;
 const DASHBOARD_ID = process.env.DASHBOARD_ID;
-const SINGLE_PANEL_QRVEY_ID = process.env.SINGLE_PANEL_QRVEY_ID;
-const SINGLE_PANEL_CHART_ID = process.env.SINGLE_PANEL_CHART_ID;
 const WEBFORM_DESIGN_QRVEY_ID = process.env.WEBFORM_DESIGN_QRVEY_ID;
-const WEBFORM_DESIGN_APP_TYPE = process.env.WEBFORM_DESIGN_APP_TYPE;
 const ANALYTIC_SUITE_QRVEY_ID = process.env.ANALYTIC_SUITE_QRVEY_ID;
-const AUTOMATION_WORKFLOW_ID = process.env.AUTOMATION_WORKFLOW_ID;
 
 // Allow specific origin
 app.use((req, res, next) => {
@@ -118,6 +114,7 @@ app.get("/analytic-suite", async (req, res) => {
   try {
     const body = {
       userid: USER_ID,
+      clientid: CLIENT_ID,
       qrveyid: ANALYTIC_SUITE_QRVEY_ID,
     };
     const token = await generateToken(body);
@@ -150,8 +147,6 @@ app.get("/single-panel", async (req, res) => {
     const body = {
       appid: APP_ID,
       userid: USER_ID,
-      qrveyId: SINGLE_PANEL_QRVEY_ID,
-      chartId: SINGLE_PANEL_CHART_ID,
     };
     const token = await generateToken(body);
     console.log(token);
@@ -167,7 +162,7 @@ app.get("/automation", async (req, res) => {
     const body = {
       appid: APP_ID,
       userid: USER_ID,
-      workflowId: AUTOMATION_WORKFLOW_ID,
+      clientid: CLIENT_ID,
     };
     const token = await generateToken(body);
     console.log(token);
