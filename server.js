@@ -147,8 +147,6 @@ app.get("/single-panel", async (req, res) => {
     const body = {
       appid: APP_ID,
       userid: USER_ID,
-      // qrveyId: SINGLE_PANEL_QRVEY_ID,
-      // chartId: SINGLE_PANEL_CHART_ID,
     };
     const token = await generateToken(body);
     console.log(token);
