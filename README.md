@@ -1,9 +1,11 @@
 
+### Widget Demo Server
 
+A super simple demo server to illustrate how to fetch Qrvey Widget Tokens while keeping your Qrvey secrets safe from end-users.
 
-Used on Lambda or Elastic Beanstalk.
+## Dev Mode
+If you'd like to clone it and run locally:
 
-No docker needed.
-
-
-
+```
+npm run dev
+```
