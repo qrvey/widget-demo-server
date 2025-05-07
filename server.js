@@ -173,6 +173,62 @@ app.get("/automation", async (req, res) => {
   }
 });
 
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+
+  const USER_ID = process.env.USER_ID;
+  const APP_ID = process.env.APP_ID;
+  const DASHBOARD_ID = process.env.DASHBOARD_ID;
+  const WORKFLOW_ID = process.env.WORKFLOW_ID;
+
+  const blockedPaths = [
+    `/devapi/v3/user/${USER_ID}/app/${APP_ID}/builder/page/${DASHBOARD_ID}`,
+    `/devapi/v4/user/${USER_ID}/app/${APP_ID}/automatiq/workflow/${WORKFLOW_ID}`,
+    `/devapi/v5/export/user/${USER_ID}/export_init`,
+    `/devapi/v5/user/${USER_ID}/app/${APP_ID}/builder/report`,
+    `/devapi/v5/export/user/${USER_ID}/export_init`,
+    `/devapi/v5/export/user/${USER_ID}/export_init`,
+  ];
+
+  const encodedBlocked = blockedPaths.map(p => Buffer.from(p).toString('base64'));
+
+  res.send(`
+    const encodedBlocked = ${JSON.stringify(encodedBlocked)};
+    const decodeBase64 = (e) => atob(e);
+
+    self.addEventListener("install", (e) => {
+      e.waitUntil(self.skipWaiting());
+    });
+
+    self.addEventListener("activate", (e) => {
+      e.waitUntil(self.clients.claim());
+    });
+
+    self.addEventListener("fetch", (e) => {
+      const { request: t } = e;
+      const isBlockedRequest =
+        (t.method === "POST" || t.method === "PUT" || t.method === "DELETE") &&
+        t.url.includes("demo.qrvey.com") &&
+        encodedBlocked.map(decodeBase64).some((url) => t.url.includes(url));
+
+      if (isBlockedRequest) {
+        e.respondWith(
+          new Response(
+            JSON.stringify({
+              message: "Request blocked by Service Worker",
+              status: 408,
+            }),
+            {
+              status: 408,
+              headers: { "Content-Type": "application/json" },
+            }
+          )
+        );
+      }
+    });
+  `);
+});
+
 // Health Check Endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({
