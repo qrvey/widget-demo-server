@@ -7,6 +7,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
+const ORG_ID = process.env.ORG_ID;
 const DOMAIN = process.env.DOMAIN;
 const APP_ID = process.env.APP_ID;
 const USER_ID = process.env.USER_ID;
@@ -24,9 +25,9 @@ app.use((req, res, next) => {
 });
 
 // Authentication Middleware
-async function generateToken(body) {
+async function generateToken(body, baseUrl) {
   const response = await axios.post(
-    DOMAIN + "/devapi/v4/core/login/token",
+    baseUrl + "/devapi/v4/core/login/token",
     body,
     {
       headers: {
@@ -39,137 +40,75 @@ async function generateToken(body) {
   return response.data;
 }
 
-// Routes for each widget
-app.get("/dashboard-view", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-      dashboardId: DASHBOARD_ID,
-      expiresIn: "10m",
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
 
-app.get("/dashboard-builder", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-      dashboardId: DASHBOARD_ID,
-      expiresIn: "10m",
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
+// Known widget names and their default configs
+const defaultConfigs = {
+  "dashboards": { 
+    appid: APP_ID,
+    userid: USER_ID,
+    orgId: ORG_ID,
+    clientid: CLIENT_ID,
+    dashboardId: DASHBOARD_ID,
+    expiresIn: "10m", 
+  },
+  "dashboard-view": {
+    appid: APP_ID,
+    userid: USER_ID,
+    clientid: CLIENT_ID,
+    dashboardId: DASHBOARD_ID,
+    expiresIn: "10m"
+  },
+  "dashboard-builder": { 
+    appid: APP_ID,
+    userid: USER_ID,
+    clientid: CLIENT_ID,
+    dashboardId: DASHBOARD_ID,
+    expiresIn: "10m", 
+  },
+  "download-manager": {       
+    appid: APP_ID,
+    userid: USER_ID,
+    clientid: CLIENT_ID,
+    expiresIn: "10m", 
+  },
+  "analytic-suite": { 
+    userid: USER_ID,
+    clientid: CLIENT_ID,
+    qrveyid: ANALYTIC_SUITE_QRVEY_ID,
+  },
+  "pixel-perfect-report": {  
+    appid: APP_ID,
+    userid: USER_ID,
+    clientid: CLIENT_ID, 
+  },
+  "single-panel": { 
+    appid: APP_ID,
+    userid: USER_ID, 
+  },
+  "automation": { 
+    appid: APP_ID,
+    userid: USER_ID,
+    clientid: CLIENT_ID,
+   }
+};
 
-app.get("/download-manager", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-      expiresIn: "10m",
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
+// Dynamic POST route for widget tokens
+app.post("/:widget", async (req, res, next) => {
+  const { widget } = req.params;
+  const { urlOverride, configOverride } = req.body;
+  if (!defaultConfigs.hasOwnProperty(widget)) {
+    return next();
   }
-});
-
-app.get("/webform-design", async (req, res) => {
+  
   try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      qrvey_id: WEBFORM_DESIGN_QRVEY_ID,
-      expiresIn: "10m",
-    };
-    const token = await generateToken(body);
-    console.log(token);
+    const baseUrl = urlOverride? urlOverride: DOMAIN;
+    const config = configOverride || defaultConfigs[widget];
+    const token = await generateToken(config, baseUrl);
+    console.log(`[${widget}] token:`, token);
     res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
-
-app.get("/analytic-suite", async (req, res) => {
-  try {
-    const body = {
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-      qrveyid: ANALYTIC_SUITE_QRVEY_ID,
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
-
-app.get("/pixel-perfect-report", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
-
-app.get("/single-panel", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
-  }
-});
-
-app.get("/automation", async (req, res) => {
-  try {
-    const body = {
-      appid: APP_ID,
-      userid: USER_ID,
-      clientid: CLIENT_ID,
-    };
-    const token = await generateToken(body);
-    console.log(token);
-    res.send(token);
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).send("Error fetching data");
+  } catch (err) {
+    console.error(`Error in widget route [${widget}]:`, err);
+    res.status(500).send("Error generating token");
   }
 });
 
